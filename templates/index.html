@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Recommender</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Music Recommendation System</h1>
+        <form action="/recommend" method="POST">
+            <label for="song_name">Song Name:</label>
+            <input type="text" id="song_name" name="song_name" required>
+            <div id="artist_field" style="display:none;">
+                <label for="artist_name">Artist Name:</label>
+                <input type="text" id="artist_name" name="artist_name">
+            </div>
+            <button type="submit">Get Recommendations</button>
+        </form>
+        <div id="suggestions"></div>
+        <button type="button" id="advanced_btn">Advanced</button>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        console.log("Document ready");  // Debug log
+
+        $("#song_name").on("input", function() {
+            var query = $(this).val();
+            console.log("Input detected:", query);  // Debug log
+
+            if (query.length > 2) {
+                console.log("Sending request to /autocomplete");  // Debug log
+                
+                $.ajax({
+                    url: "/autocomplete",
+                    method: "GET",
+                    data: { term: query },
+                    success: function(data) {
+                        console.log("Received data:", data);  // Debug log
+                        $("#suggestions").empty();
+                        
+                        if (data && data.length > 0) {
+                            data.forEach(function(song) {
+                                // Capitalize first letter of each word for display
+                                var displayName = song.name.split(' ').map(word => 
+                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                ).join(' ');
+                                var displayArtists = song.artists.split(' ').map(word => 
+                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                ).join(' ');
+
+                                var div = $('<div>')
+                                    .addClass('suggestion-item')
+                                    .text(displayName + ' by ' + displayArtists)
+                                    .attr('data-song', song.name)
+                                    .attr('data-artist', song.artists);
+                                
+                                $("#suggestions").append(div);
+                            });
+                            
+                            console.log("Suggestions added to DOM");  // Debug log
+                            $("#suggestions").show();
+                            console.log("Suggestions div shown");  // Debug log
+                        } else {
+                            console.log("No suggestions received");  // Debug log
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Ajax error:", status, error);  // Debug log
+                        console.error("Response:", xhr.responseText);  // Debug log
+                    }
+                });
+            } else {
+                $("#suggestions").empty().hide();
+            }
+        });
+
+        // When a suggestion is clicked
+        $(document).on('click', '.suggestion-item', function() {
+            console.log("Suggestion clicked");  // Debug log
+            var songName = $(this).attr('data-song');
+            var artistName = $(this).attr('data-artist');
+            
+            console.log("Selected:", songName, "by", artistName);  // Debug log
+            
+            $("#song_name").val(songName);
+            $("#artist_name").val(artistName);
+            $("#artist_field").show();
+            $("#suggestions").empty().hide();
+        });
+
+        $("#advanced_btn").click(function() {
+            $("#artist_field").toggle();
+        });
+    });
+    </script>
+</body>
+</html>

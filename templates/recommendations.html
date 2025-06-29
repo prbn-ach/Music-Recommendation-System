@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Recommended Songs</h1>
+        <ul>
+            {% for song in recommendations %}
+            <li>
+                <form method="POST" action="/recommend">
+                    <button type="submit" class="song-button">
+                        {% set name_parts = song['name'].split(' ') %}
+                        {% set artist_parts = song['artists'].split(' ') %}
+                        {{ name_parts|map('capitalize')|join(' ') }} by {{ artist_parts|map('capitalize')|join(' ') }}
+                    </button>
+                    <input type="hidden" name="song_name" value="{{ song['name'] }}">
+                    <input type="hidden" name="artist_name" value="{{ song['artists'] }}">
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="/">Back to Search</a>
+    </div>
+</body>
+</html>
