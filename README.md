@@ -20,3 +20,4 @@ A **simple, offline music recommendation system** built using the **Flask** web 
 
 - Python 3.x
 - Flask
+- Scikit-learn

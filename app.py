@@ -25,6 +25,7 @@ class SongNotFoundError(Exception):
 def load_dataset() -> pd.DataFrame:
     # Load and cache the dataset to prevent multiple reads.
     try:
+        #dont forget to unzip the csv file
         return pd.read_csv("formatted.csv")
     except FileNotFoundError:
         logger.error("Dataset file 'formatted.csv' not found")
